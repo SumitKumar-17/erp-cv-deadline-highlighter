@@ -1,22 +1,21 @@
-# Icon Placeholder
+# Extension Icons
 
-This directory should contain the following icon files:
-- icon16.png (16x16 pixels)
-- icon32.png (32x32 pixels) 
-- icon48.png (48x48 pixels)
-- icon128.png (128x128 pixels)
+This directory contains the properly sized icon files for the ERP CV Deadline Highlighter extension:
+- icon16.png (16x16 pixels) - Toolbar icon
+- icon32.png (32x32 pixels) - Windows/Mac menu icon
+- icon48.png (48x48 pixels) - Extension management page
+- icon128.png (128x128 pixels) - Chrome Web Store and installation
 
-You can create these icons using any image editor or online icon generator.
+## Generation
+All icons are automatically generated from the main `logo.png` file using ImageMagick:
+```bash
+magick logo.png -resize 16x16 icons/icon16.png
+magick logo.png -resize 32x32 icons/icon32.png
+magick logo.png -resize 48x48 icons/icon48.png
+magick logo.png -resize 128x128 icons/icon128.png
+```
 
-For a deadline highlighter extension, consider using:
-- Clock/timer icon
-- Calendar with highlights
-- Colorful deadline indicator
-- Graduation cap (for academic context)
-
-Recommended colors:
-- Primary: #4CAF50 (Green)
-- Secondary: #FF9800 (Orange)
-- Accent: #F44336 (Red)
+## Usage
+These icons are referenced in `manifest.json` and provide optimal display quality across different Chrome UI contexts.
 
 The icons should be professional and clearly represent the extension's purpose.

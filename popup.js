@@ -64,10 +64,10 @@ class PopupController {
         this.showSuccess('✅ Extension started successfully');
         this.updateStatus(true);
       } else {
-        this.showError(`❌ ${response.message}`);
+        this.showError(`${response.message}`);
       }
     } catch (error) {
-      this.showError(`❌ Error: ${error.message}`);
+      this.showError(`Error: ${error.message}`);
     } finally {
       this.setLoading(false);
     }
@@ -82,10 +82,10 @@ class PopupController {
         this.showSuccess('⏹️ Extension stopped');
         this.updateStatus(false);
       } else {
-        this.showError(`❌ ${response.message}`);
+        this.showError(`${response.message}`);
       }
     } catch (error) {
-      this.showError(`❌ Error: ${error.message}`);
+      this.showError(`Error: ${error.message}`);
     } finally {
       this.setLoading(false);
     }
@@ -97,13 +97,13 @@ class PopupController {
       const response = await this.sendMessageToActiveTab({ action: 'clear' });
       
       if (response.success) {
-        this.showSuccess('🧹 Highlights cleared');
+        this.showSuccess('Highlights cleared');
         this.elements.processedCount.textContent = '0';
       } else {
-        this.showError(`❌ ${response.message}`);
+        this.showError(`${response.message}`);
       }
     } catch (error) {
-      this.showError(`❌ Error: ${error.message}`);
+      this.showError(`Error: ${error.message}`);
     } finally {
       this.setLoading(false);
     }

@@ -6,7 +6,7 @@
 
 A professional Chrome extension designed to highlight CV deadlines in ERP systems with color-coded visual indicators for better deadline management. Perfect for students managing placement applications with multiple deadlines.
 
-## 👨‍💻 Developer
+## Developer
 
 **Sumit Kumar**
 - GitHub: [@SumitKumar-17](https://github.com/SumitKumar-17)
@@ -19,7 +19,7 @@ A professional Chrome extension designed to highlight CV deadlines in ERP system
 - **🟠 Orange**: Critical deadlines (within 24 hours) with pulsing animation
 - **🔴 Red**: Overdue deadlines with urgent pulsing animation
 
-### 🚀 Advanced Functionality
+### Advanced Functionality
 - **Real-time Monitoring**: Continuously scans and updates deadline status
 - **Intelligent Tooltips**: Hover over highlighted rows for detailed deadline information
 - **Smooth Animations**: Professional CSS transitions and effects
@@ -207,7 +207,7 @@ class PopupController {
    - Test with large datasets
    - Verify smooth animations
 
-## 🚀 Deployment
+## Deployment
 
 ### Preparing for Chrome Web Store
 

@@ -1,6 +1,6 @@
 # Development & Deployment Guide
 
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Load Extension in Developer Mode
 ```bash
@@ -111,7 +111,7 @@ extension/
 ### Color Scheme
 ```css
 :root {
-  --upcoming-color: #4CAF50;    /* Green */
+  --upcoming-color:rgb(0, 255, 8);    /* Green */
   --warning-color: #FF9800;     /* Orange */
   --overdue-color: #F44336;     /* Red */
   --border-color: #E0E0E0;      /* Light gray */

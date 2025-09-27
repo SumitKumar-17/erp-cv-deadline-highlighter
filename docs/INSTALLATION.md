@@ -1,6 +1,6 @@
 # 🔧 Installation & Troubleshooting Guide
 
-## 🚀 Quick Installation
+## Quick Installation
 
 ### Step 1: Enable Developer Mode
 1. Open Chrome and navigate to: `chrome://extensions/`
