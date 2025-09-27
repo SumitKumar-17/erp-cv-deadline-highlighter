@@ -1,6 +1,7 @@
 # ERP CV Deadline Highlighter
 
 A Chrome extension that highlights CV deadlines in ERP systems with color-coded visual indicators for better deadline management.
+![ERP CV Deadline Highlighter Screenshot](./image.png)
 
 ## Author
 **Sumit Kumar**
