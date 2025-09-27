@@ -14,10 +14,11 @@ const CONFIG = {
   startNumber: 2,
   endNumber: 600,
   colors: {
-    upcoming: '#4CAF50',    // Green for upcoming deadlines
-    overdue: '#F44336',     // Red for overdue deadlines
-    warning: '#FF9800',     // Orange for deadlines within 24 hours
-    border: '#E0E0E0'       // Light gray border
+   upcoming: '#00FF00',   // Green for upcoming deadlines
+overdue:  '#E53935',   // Strong Red for overdue deadlines
+warning:  '#FB8C00',   // Amber/Orange for soon-to-expire
+border:   '#BDBDBD'    // Neutral Grey for borders
+
   },
   refreshInterval: 1000,    // 1 second refresh rate
   autoStopTime: 300000     // Auto-stop after 5 minutes
@@ -35,11 +36,28 @@ function initializeExtension() {
   console.log('👨‍💻 Developed by: Sumit Kumar');
   console.log('🔗 GitHub: https://github.com/SumitKumar-17/erp-cv-deadline-highlighter');
   
+  // Try to find the target frame
   targetFrame = window.frames[CONFIG.frameName];
   
+  // Alternative: try to find frame by accessing frames collection
+  if (!targetFrame && window.frames.length > 0) {
+    for (let i = 0; i < window.frames.length; i++) {
+      try {
+        if (window.frames[i].name === CONFIG.frameName) {
+          targetFrame = window.frames[i];
+          break;
+        }
+      } catch (e) {
+        // Cross-origin frame access error, skip
+        continue;
+      }
+    }
+  }
+  
+  // If still no frame, try to work with the main document
   if (!targetFrame) {
-    console.warn('⚠️ Target frame not found. Extension may not work properly.');
-    return false;
+    console.warn('⚠️ Target frame not found. Trying to work with main document...');
+    targetFrame = window;
   }
   
   isExtensionActive = true;
@@ -311,11 +329,14 @@ function highlightDeadlines() {
         const elementDateTime = getElementDateTimeFromText(timeText);
         
         if (!elementDateTime) {
+          console.debug(`⚠️ Could not parse date from: "${timeText}"`);
           continue;
         }
         
         // Get the current date and time
         const currentDate = new Date();
+        
+        console.debug(`📅 Processing deadline: ${timeText} -> ${elementDateTime.toLocaleString()}, Current: ${currentDate.toLocaleString()}`);
         
         // Apply highlighting
         applyDeadlineHighlight(element, elementDateTime, currentDate);
@@ -376,70 +397,110 @@ function clearHighlights() {
 }
 
 // Message listener for popup communication
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  try {
-    switch (request.action) {
-      case 'start':
-        if (!isExtensionActive) {
-          initializeExtension();
-          sendResponse({ success: true, message: 'Extension started' });
-        } else {
-          sendResponse({ success: false, message: 'Extension already running' });
-        }
-        break;
+if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage) {
+  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    try {
+      switch (request.action) {
+        case 'start':
+          if (!isExtensionActive) {
+            const success = initializeExtension();
+            sendResponse({ 
+              success: success, 
+              message: success ? 'Extension started' : 'Failed to start extension' 
+            });
+          } else {
+            sendResponse({ success: false, message: 'Extension already running' });
+          }
+          break;
+          
+        case 'stop':
+          stopHighlighting();
+          sendResponse({ success: true, message: 'Extension stopped' });
+          break;
+          
+        case 'clear':
+          clearHighlights();
+          sendResponse({ success: true, message: 'Highlights cleared' });
+          break;
+          
+        case 'status':
+          sendResponse({ 
+            isActive: isExtensionActive,
+            processedRows: processedRows.size
+          });
+          break;
         
-      case 'stop':
-        stopHighlighting();
-        sendResponse({ success: true, message: 'Extension stopped' });
-        break;
-        
-      case 'clear':
-        clearHighlights();
-        sendResponse({ success: true, message: 'Highlights cleared' });
-        break;
-        
-      case 'status':
+      case 'ping':
         sendResponse({ 
-          isActive: isExtensionActive,
-          processedRows: processedRows.size
+          success: true, 
+          message: 'Content script is active',
+          isActive: isExtensionActive
         });
         break;
         
       default:
         sendResponse({ success: false, message: 'Unknown action' });
-    }
-  } catch (error) {
-    console.error('❌ Message handler error:', error);
-    sendResponse({ success: false, message: error.message });
-  }
-  
-  return true; // Keep message channel open
-});
-
-// Auto-start when content script loads
-document.addEventListener('DOMContentLoaded', () => {
-  // Wait a bit for the page to fully load
-  setTimeout(() => {
-    if (window.location.href.includes('showmenu.htm')) {
-      initializeExtension();
-    }
-  }, 2000);
-});
-
-// Initialize immediately if DOM is already loaded
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(() => {
-      if (window.location.href.includes('showmenu.htm')) {
-        initializeExtension();
       }
-    }, 2000);
+    } catch (error) {
+      console.error('❌ Message handler error:', error);
+      sendResponse({ success: false, message: error.message });
+    }
+    
+    return true; // Keep message channel open
   });
 } else {
-  setTimeout(() => {
-    if (window.location.href.includes('showmenu.htm')) {
-      initializeExtension();
-    }
-  }, 2000);
+  console.warn('⚠️ Chrome runtime not available, message listener not set up');
 }
+
+// Safe initialization function
+function safeInitialize() {
+  try {
+    if (window.location.href.includes('showmenu.htm') || 
+        window.location.href.includes('erp.iitkgp.ac.in')) {
+      console.log('📍 On ERP page, attempting to initialize...');
+      initializeExtension();
+    } else {
+      console.log('📍 Not on target ERP page, skipping initialization');
+    }
+  } catch (error) {
+    console.error('❌ Error during safe initialization:', error);
+  }
+}
+
+// Multiple initialization strategies for better compatibility
+const initStrategies = [
+  // Strategy 1: Wait for DOM content loaded
+  () => {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(safeInitialize, 2000);
+      });
+    } else {
+      setTimeout(safeInitialize, 2000);
+    }
+  },
+  
+  // Strategy 2: Wait for window load (everything including frames)
+  () => {
+    if (document.readyState !== 'complete') {
+      window.addEventListener('load', () => {
+        setTimeout(safeInitialize, 3000);
+      });
+    } else {
+      setTimeout(safeInitialize, 1000);
+    }
+  }
+];
+
+// Execute initialization strategies
+initStrategies.forEach((strategy, index) => {
+  try {
+    strategy();
+  } catch (error) {
+    console.error(`❌ Initialization strategy ${index + 1} failed:`, error);
+  }
+});
+
+// Expose global flag to prevent duplicate initialization
+window.isExtensionActive = isExtensionActive;
 

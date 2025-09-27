@@ -4,212 +4,72 @@
  * GitHub: https://github.com/SumitKumar-17/erp-cv-deadline-highlighter
  */
 
+console.log('🚀 ERP CV Deadline Highlighter - Service Worker Started');
+console.log('👨‍💻 Developed by: Sumit Kumar');
+console.log('🔗 GitHub: https://github.com/SumitKumar-17/erp-cv-deadline-highlighter');
+
 // Extension installation and update handling
 chrome.runtime.onInstalled.addListener((details) => {
-  console.log('🚀 ERP CV Deadline Highlighter installed/updated');
-  console.log('👨‍💻 Developed by: Sumit Kumar');
-  console.log('🔗 GitHub: https://github.com/SumitKumar-17/erp-cv-deadline-highlighter');
+  console.log('Extension installed/updated:', details.reason);
   
   if (details.reason === 'install') {
-    // Show welcome notification
-    chrome.notifications.create({
-      type: 'basic',
-      iconUrl: 'icons/icon48.png',
-      title: 'ERP CV Deadline Highlighter',
-      message: 'Extension installed successfully! Navigate to ERP system to start highlighting deadlines.'
-    });
+    console.log('✅ First time installation - Welcome!');
     
-    // Open GitHub repository on first install
+    // Try to open GitHub (optional - will fail silently if not allowed)
     chrome.tabs.create({
       url: 'https://github.com/SumitKumar-17/erp-cv-deadline-highlighter'
+    }).catch(error => {
+      console.log('GitHub tab not opened:', error.message);
     });
   } else if (details.reason === 'update') {
-    // Show update notification
-    chrome.notifications.create({
-      type: 'basic',
-      iconUrl: 'icons/icon48.png',
-      title: 'ERP CV Deadline Highlighter Updated',
-      message: `Updated to version ${chrome.runtime.getManifest().version}`
-    });
-  }
-});
-
-// Handle extension icon click
-chrome.action.onClicked.addListener(async (tab) => {
-  try {
-    // Check if we're on the correct page
-    if (!tab.url.includes('erp.iitkgp.ac.in')) {
-      // Show notification to navigate to ERP system
-      chrome.notifications.create({
-        type: 'basic',
-        iconUrl: 'icons/icon48.png',
-        title: 'Navigate to ERP System',
-        message: 'Please navigate to the ERP placement page to use this extension.'
-      });
-      return;
-    }
-    
-    // Try to inject content script if not already present
-    await chrome.scripting.executeScript({
-      target: { tabId: tab.id },
-      files: ['content.js']
-    });
-    
-  } catch (error) {
-    console.error('Error handling icon click:', error);
-  }
-});
-
-// Context menu setup
-chrome.runtime.onInstalled.addListener(() => {
-  chrome.contextMenus.create({
-    id: 'start-highlighting',
-    title: 'Start Deadline Highlighting',
-    contexts: ['page'],
-    documentUrlPatterns: ['*://erp.iitkgp.ac.in/*']
-  });
-  
-  chrome.contextMenus.create({
-    id: 'stop-highlighting',
-    title: 'Stop Deadline Highlighting',
-    contexts: ['page'],
-    documentUrlPatterns: ['*://erp.iitkgp.ac.in/*']
-  });
-  
-  chrome.contextMenus.create({
-    id: 'separator',
-    type: 'separator',
-    contexts: ['page'],
-    documentUrlPatterns: ['*://erp.iitkgp.ac.in/*']
-  });
-  
-  chrome.contextMenus.create({
-    id: 'open-github',
-    title: 'View on GitHub',
-    contexts: ['page'],
-    documentUrlPatterns: ['*://erp.iitkgp.ac.in/*']
-  });
-});
-
-// Context menu click handler
-chrome.contextMenus.onClicked.addListener(async (info, tab) => {
-  try {
-    switch (info.menuItemId) {
-      case 'start-highlighting':
-        await chrome.tabs.sendMessage(tab.id, { action: 'start' });
-        break;
-        
-      case 'stop-highlighting':
-        await chrome.tabs.sendMessage(tab.id, { action: 'stop' });
-        break;
-        
-      case 'open-github':
-        chrome.tabs.create({
-          url: 'https://github.com/SumitKumar-17/erp-cv-deadline-highlighter'
-        });
-        break;
-    }
-  } catch (error) {
-    console.error('Context menu error:', error);
+    console.log('✅ Extension updated successfully');
   }
 });
 
 // Handle messages from content scripts and popup
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  console.log('📨 Background received message:', request.action);
+  
   try {
     switch (request.action) {
-      case 'notification':
-        chrome.notifications.create({
-          type: 'basic',
-          iconUrl: 'icons/icon48.png',
-          title: request.title || 'ERP CV Deadline Highlighter',
-          message: request.message
-        });
-        sendResponse({ success: true });
-        break;
-        
       case 'get-version':
-        sendResponse({ version: chrome.runtime.getManifest().version });
-        break;
-        
-      case 'open-options':
-        chrome.runtime.openOptionsPage();
-        sendResponse({ success: true });
+        sendResponse({ 
+          version: chrome.runtime.getManifest().version,
+          success: true 
+        });
         break;
         
       default:
-        sendResponse({ success: false, message: 'Unknown action' });
+        sendResponse({ 
+          success: false, 
+          message: `Unknown action: ${request.action}` 
+        });
     }
   } catch (error) {
-    console.error('Background message handler error:', error);
-    sendResponse({ success: false, message: error.message });
+    console.error('❌ Background message handler error:', error);
+    sendResponse({ 
+      success: false, 
+      message: error.message 
+    });
   }
   
-  return true; // Keep message channel open
+  return true; // Keep message channel open for async responses
 });
 
-// Tab update listener to inject content script
-chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-  // Only inject when page is completely loaded and URL matches
-  if (changeInfo.status === 'complete' && 
-      tab.url && 
-      tab.url.includes('erp.iitkgp.ac.in') &&
-      tab.url.includes('showmenu.htm')) {
-    
-    try {
-      // Check if content script is already injected
-      const results = await chrome.scripting.executeScript({
-        target: { tabId: tabId },
-        func: () => typeof window.isExtensionActive !== 'undefined'
-      });
-      
-      // If content script is not present, inject it
-      if (!results[0]?.result) {
-        await chrome.scripting.executeScript({
-          target: { tabId: tabId },
-          files: ['content.js']
-        });
-        
-        await chrome.scripting.insertCSS({
-          target: { tabId: tabId },
-          files: ['styles.css']
-        });
-        
-        console.log('Content script injected into ERP page');
-      }
-    } catch (error) {
-      console.error('Error injecting content script:', error);
-    }
-  }
-});
-
-// Handle extension suspension/wake
-chrome.runtime.onSuspend.addListener(() => {
-  console.log('Extension suspending...');
-});
-
+// Clean startup
 chrome.runtime.onStartup.addListener(() => {
-  console.log('Extension starting up...');
+  console.log('🔄 Extension startup - Ready to highlight deadlines!');
 });
 
-// Storage management
-chrome.storage.onChanged.addListener((changes, namespace) => {
-  console.log('Storage changed:', changes, namespace);
-});
+/**
+ * IMPORTANT NOTES:
+ *
+ * 1. NO chrome.action.onClicked - We use default_popup in manifest
+ * 2. NO context menus - Simplified to avoid conflicts  
+ * 3. All user interaction through popup interface
+ * 4. Minimal background script to avoid service worker issues
+ * 5. Error handling for all async operations
+ */
 
-// Performance monitoring
-let performanceMetrics = {
-  startTime: Date.now(),
-  messagesHandled: 0,
-  errorsOccurred: 0
-};
+console.log('✅ Background script initialization complete');
 
-// Log performance metrics periodically
-setInterval(() => {
-  const uptime = Date.now() - performanceMetrics.startTime;
-  console.log('📊 Extension Metrics:', {
-    uptime: `${Math.floor(uptime / 1000)}s`,
-    messagesHandled: performanceMetrics.messagesHandled,
-    errorsOccurred: performanceMetrics.errorsOccurred
-  });
-}, 300000); // Every 5 minutes
