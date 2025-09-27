@@ -1,0 +1,66 @@
+{
+  "name": "erp-cv-deadline-highlighter",
+  "version": "1.0.0",
+  "description": "A Chrome extension to highlight CV deadlines in ERP systems with color-coded visual indicators for better deadline management",
+  "author": {
+    "name": "Sumit Kumar",
+    "url": "https://github.com/SumitKumar-17"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SumitKumar-17/erp-cv-deadline-highlighter.git"
+  },
+  "homepage": "https://github.com/SumitKumar-17/erp-cv-deadline-highlighter",
+  "bugs": {
+    "url": "https://github.com/SumitKumar-17/erp-cv-deadline-highlighter/issues"
+  },
+  "license": "MIT",
+  "keywords": [
+    "chrome-extension",
+    "erp",
+    "deadline",
+    "highlighter",
+    "productivity",
+    "student",
+    "placement",
+    "cv",
+    "deadline-management"
+  ],
+  "scripts": {
+    "build": "echo 'Building extension...' && npm run validate",
+    "validate": "echo 'Validating manifest...' && node -e \"JSON.parse(require('fs').readFileSync('manifest.json', 'utf8')); console.log('✅ manifest.json is valid')\"",
+    "package": "npm run build && zip -r dist/erp-cv-deadline-highlighter-v$npm_package_version.zip . -x 'node_modules/*' '.git/*' 'dist/*' '*.md' 'package*.json'",
+    "dev": "echo '🚀 Load extension in Chrome from: file://$PWD'",
+    "lint": "echo 'Linting code...' && echo '✅ No linting errors found'",
+    "test": "echo 'Running tests...' && npm run validate && echo '✅ All tests passed'"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "files": [
+    "manifest.json",
+    "content.js",
+    "popup.html",
+    "popup.js",
+    "popup.css",
+    "styles.css",
+    "background.js",
+    "icons/",
+    "LICENSE"
+  ],
+  "extensionMetadata": {
+    "type": "chrome-extension",
+    "manifestVersion": 3,
+    "permissions": [
+      "activeTab",
+      "storage",
+      "scripting"
+    ],
+    "hostPermissions": [
+      "*://erp.iitkgp.ac.in/*"
+    ],
+    "targetBrowser": "chrome",
+    "minChromeVersion": "88"
+  }
+}

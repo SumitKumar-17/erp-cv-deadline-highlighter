@@ -1,0 +1,163 @@
+/* Content Script Styles for ERP CV Deadline Highlighter */
+
+/* Base styles for highlighted elements */
+.erp-deadline-highlighted {
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  border-radius: 4px !important;
+}
+
+/* Status-specific styles */
+.erp-status-upcoming {
+  background-color: #4CAF50 !important;
+  border: 2px solid #45a049 !important;
+}
+
+.erp-status-warning {
+  background-color: #FF9800 !important;
+  border: 2px solid #f57c00 !important;
+  animation: pulse-warning 2s infinite;
+}
+
+.erp-status-overdue {
+  background-color: #F44336 !important;
+  border: 2px solid #d32f2f !important;
+  animation: pulse-overdue 1.5s infinite;
+}
+
+/* Hover effects */
+.erp-deadline-highlighted:hover {
+  transform: scale(1.02) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2) !important;
+  z-index: 1000 !important;
+}
+
+/* Warning animation */
+@keyframes pulse-warning {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(255, 152, 0, 0);
+  }
+}
+
+/* Overdue animation */
+@keyframes pulse-overdue {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 15px rgba(244, 67, 54, 0);
+  }
+}
+
+/* Custom tooltip styles */
+.erp-deadline-highlighted[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  top: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: pre-line;
+  z-index: 10000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  max-width: 300px;
+  word-wrap: break-word;
+}
+
+.erp-deadline-highlighted[title]:hover::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: rgba(0, 0, 0, 0.9);
+  z-index: 10000;
+}
+
+/* Smooth transitions for all table cells */
+td {
+  transition: all 0.3s ease !important;
+}
+
+/* Loading indicator */
+.erp-loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.erp-loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: loading-sweep 1.5s infinite;
+}
+
+@keyframes loading-sweep {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .erp-status-upcoming {
+    background-color: #2E7D32 !important;
+    color: white !important;
+  }
+  
+  .erp-status-warning {
+    background-color: #E65100 !important;
+    color: white !important;
+  }
+  
+  .erp-status-overdue {
+    background-color: #B71C1C !important;
+    color: white !important;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .erp-deadline-highlighted,
+  .erp-deadline-highlighted:hover,
+  td {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* Print styles */
+@media print {
+  .erp-deadline-highlighted {
+    background-color: transparent !important;
+    border: 2px solid #000 !important;
+    box-shadow: none !important;
+  }
+  
+  .erp-status-upcoming {
+    border-style: solid !important;
+  }
+  
+  .erp-status-warning {
+    border-style: dashed !important;
+  }
+  
+  .erp-status-overdue {
+    border-style: dotted !important;
+  }
+}

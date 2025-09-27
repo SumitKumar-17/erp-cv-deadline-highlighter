@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ERP CV Deadline Highlighter</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div class="logo">
+        <img src="icons/icon48.png" alt="Extension Icon" class="icon">
+        <div class="title-section">
+          <h1>ERP CV Deadline Highlighter</h1>
+          <p class="version">v1.0.0</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status Section -->
+    <div class="status-section">
+      <div class="status-indicator" id="statusIndicator">
+        <span class="status-dot" id="statusDot"></span>
+        <span class="status-text" id="statusText">Checking status...</span>
+      </div>
+      <div class="stats" id="stats">
+        <span id="processedCount">0</span> rows processed
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+      <button id="startBtn" class="btn btn-primary">
+        <span class="btn-icon">▶</span>
+        Start Highlighting
+      </button>
+      <button id="stopBtn" class="btn btn-secondary">
+        <span class="btn-icon">⏸</span>
+        Stop
+      </button>
+      <button id="clearBtn" class="btn btn-tertiary">
+        <span class="btn-icon">🧹</span>
+        Clear Highlights
+      </button>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend">
+      <h3>Color Legend</h3>
+      <div class="legend-items">
+        <div class="legend-item">
+          <span class="color-box upcoming"></span>
+          <span>Upcoming deadlines</span>
+        </div>
+        <div class="legend-item">
+          <span class="color-box warning"></span>
+          <span>Due within 24 hours</span>
+        </div>
+        <div class="legend-item">
+          <span class="color-box overdue"></span>
+          <span>Overdue deadlines</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Information -->
+    <div class="info-section">
+      <div class="info-item">
+        <strong>How to use:</strong>
+        <ul>
+          <li>Navigate to ERP placement page</li>
+          <li>Click "Start Highlighting" to begin</li>
+          <li>Deadlines will be color-coded automatically</li>
+          <li>Hover over highlighted rows for details</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <div class="author-info">
+        <p>👨‍💻 Developed by <strong>Sumit Kumar</strong></p>
+        <div class="links">
+          <a href="https://github.com/SumitKumar-17/erp-cv-deadline-highlighter" target="_blank" class="link">
+            <span class="link-icon">🔗</span>
+            GitHub Repository
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
