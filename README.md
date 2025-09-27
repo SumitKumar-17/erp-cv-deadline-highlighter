@@ -14,7 +14,7 @@ For questions, issues, or contributions, please reach out via:
 [![Download extension](https://img.shields.io/badge/Download-%20Extension-blue?style=for-the-badge&logo=googlechrome)](https://github.com/SumitKumar-17/erp-cv-deadline-highlighter/archive/refs/heads/main.zip)
 ## Installation (Chrome)
 
-1. [Download the extension](./addon.zip) and unzip it.  
+1. Download the extension and unzip it.  
 2. Open [chrome://extensions/](chrome://extensions/).  
 3. Toggle **Developer mode** (top-right corner).  
 4. Click **Load unpacked** → select the folder `erp-cv-deadline-highlighter` (the one containing all the source files).
