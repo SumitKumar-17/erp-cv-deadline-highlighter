@@ -111,7 +111,7 @@ extension/
 ### Color Scheme
 ```css
 :root {
-  --upcoming-color:rgb(0, 255, 8);    /* Green */
+  --upcoming-color: #4CAF50;    /* Green */
   --warning-color: #FF9800;     /* Orange */
   --overdue-color: #F44336;     /* Red */
   --border-color: #E0E0E0;      /* Light gray */
