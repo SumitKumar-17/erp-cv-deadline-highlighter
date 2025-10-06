@@ -15,9 +15,11 @@ For questions, issues, or contributions, please reach out via:
 ## Installation (Chrome)
 
 1. Download the extension and unzip it.  
-2. Open [chrome://extensions/](chrome://extensions/).  
-3. Toggle **Developer mode** (top-right corner).  
-4. Click **Load unpacked** → select the folder `erp-cv-deadline-highlighter` (the one containing all the source files).
+2. Open [chrome://extensions/](chrome://extensions/).
+   > For Brave,Edge,it also works Just go to the extensions in the Settings and it will work for everyone.
+4. Toggle **Developer mode** (top-right corner).  
+5. Click **Load unpacked** → select the folder `erp-cv-deadline-highlighter` (the one containing all the source files).
+6. As you select the folder, your work is done. Now just go to the ERP Placement Portal and you can see the extension working 😀
 
 As soon as I get some funding to for the Chrome Web Store Account I will publish it there for easy downloading. Till then :)
 
