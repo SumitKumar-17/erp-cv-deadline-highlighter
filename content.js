@@ -16,9 +16,7 @@ if (window.erpDeadlineHighlighterLoaded) {
     // Configuration constants
     const CONFIG = {
         frameName: "myframe",
-        templateXPath: "/html/body/table/tbody/tr[3]/td/table/tbody/tr/td/table/tbody/tr/td/div[2]/div[3]/div[3]/div/table/tbody/tr[{number}]/td[12]",
-        startNumber: 2,
-        endNumber: 600,
+        // XPath configuration removed as we now use robust CSS selectors
         colors: {
             upcoming: '#00ff08',   // Green for upcoming deadlines
             overdue: '#ff0000',    // Red for overdue deadlines
@@ -99,52 +97,55 @@ if (window.erpDeadlineHighlighterLoaded) {
         }, CONFIG.autoStopTime);
     }
 
-    /**
-     * Generates XPath expressions from template
-     * @param {string} templateXPath - Template XPath with {number} placeholder
-     * @param {number} startNumber - Starting row number
-     * @param {number} endNumber - Ending row number
-     * @returns {Array<string>} Array of XPath expressions
-     */
-    function generateXPathExpressions(templateXPath, startNumber, endNumber) {
-        const xpaths = [];
-
-        for (let i = startNumber; i <= endNumber; i++) {
-            const xpath = templateXPath.replace('{number}', i);
-            xpaths.push(xpath.trim());
-        }
-
-        return xpaths;
-    }
+    // generateXPathExpressions removed as it is no longer needed
 
     /**
      * Parses date and time from text content
-     * @param {string} timeTextContent - Date time string in DD-MM-YYYY HH:MM format
+     * @param {string} timeTextContent - Date time string in DD-MM-YYYY HH:MM or YYYY-MM-DD HH:MM format
+     * @returns {Date|null} Parsed Date object or null if invalid
+     */
+    /**
+     * Parses date and time from text content
+     * @param {string} timeTextContent - Date time string in DD-MM-YYYY HH:MM or YYYY-MM-DD HH:MM format
      * @returns {Date|null} Parsed Date object or null if invalid
      */
     function getElementDateTimeFromText(timeTextContent) {
         try {
-            if (!timeTextContent || timeTextContent.trim() === '') {
+            if (!timeTextContent || typeof timeTextContent !== 'string' || timeTextContent.trim() === '') {
                 return null;
             }
 
             // Parse the time text and create a Date object
-            const parts = timeTextContent.trim().split(/[- :]/);
+            // Split by one or more separators to handle multiple spaces
+            const parts = timeTextContent.trim().split(/[- :]+/);
 
             if (parts.length < 5) {
-                console.warn('Invalid date format:', timeTextContent);
+                // console.debug('Invalid date format (not enough parts):', timeTextContent);
                 return null;
             }
 
-            const year = parseInt(parts[2], 10);
-            const month = parseInt(parts[1], 10) - 1; // Months are zero-based in JavaScript
-            const day = parseInt(parts[0], 10);
+            let year, month, day;
+            const p0 = parseInt(parts[0], 10);
+
+            // Determine format based on first part
+            if (p0 > 31) {
+                // Format: YYYY-MM-DD
+                year = p0;
+                month = parseInt(parts[1], 10) - 1;
+                day = parseInt(parts[2], 10);
+            } else {
+                // Format: DD-MM-YYYY
+                day = p0;
+                month = parseInt(parts[1], 10) - 1;
+                year = parseInt(parts[2], 10);
+            }
+
             const hour = parseInt(parts[3], 10);
             const minute = parseInt(parts[4], 10);
 
             // Validate parsed values
             if (isNaN(year) || isNaN(month) || isNaN(day) || isNaN(hour) || isNaN(minute)) {
-                console.warn('Invalid date components:', { year, month, day, hour, minute });
+                // console.debug('Invalid date components:', { year, month, day, hour, minute }, timeTextContent);
                 return null;
             }
 
@@ -152,60 +153,35 @@ if (window.erpDeadlineHighlighterLoaded) {
 
             // Check if date is valid
             if (isNaN(elementDateTime.getTime())) {
-                console.warn('Invalid date created:', timeTextContent);
+                // console.debug('Invalid date created:', timeTextContent);
                 return null;
             }
 
             return elementDateTime;
         } catch (error) {
-            console.error('Error parsing date:', error, timeTextContent);
+            console.debug('Error parsing date:', error, timeTextContent);
             return null;
         }
     }
 
     /**
      * Selects all related elements in a table row for styling
-     * @param {HTMLElement} element - The deadline element (resume upload end)
+     * @param {HTMLElement} element - The deadline element
      * @returns {Array<HTMLElement>} Array of elements to be styled
      */
     function getRowElements(element) {
-        const elements = [];
-
-        if (!element) {
-            return elements;
-        }
+        if (!element) return [];
 
         try {
-            let currentElement = element;
+            // Find the parent row
+            const row = element.closest('tr');
+            if (!row) return [element];
 
-            // Add current element (resume upload end)
-            elements.push(currentElement);
-
-            // Traverse backwards through siblings to get all row elements
-            const siblingLabels = [
-                'Resume Upload Start',
-                'Application Status',
-                'Additional Details',
-                'Additional Details',
-                'Additional Details',
-                'Apply/Acceptance',
-                'Apply/Acceptance',
-                'PPT',
-                'Additional Details',
-                'Company'
-            ];
-
-            for (let i = 0; i < siblingLabels.length; i++) {
-                currentElement = currentElement?.previousElementSibling;
-                if (currentElement) {
-                    elements.push(currentElement);
-                }
-            }
-
-            return elements.filter(el => el !== null);
+            // Return all cells in the row to highlight the entire row
+            return Array.from(row.querySelectorAll('td'));
         } catch (error) {
             console.error('Error selecting row elements:', error);
-            return [element]; // Return at least the original element
+            return [element];
         }
     }
 
@@ -754,57 +730,48 @@ if (window.erpDeadlineHighlighterLoaded) {
         }
 
         try {
-            const generatedXPaths = generateXPathExpressions(
-                CONFIG.templateXPath,
-                CONFIG.startNumber,
-                CONFIG.endNumber
-            );
+            // Find all deadline cells using the aria-describedby attribute
+            // This targets cells that correspond to the "Resume Upload End" column
+            // The selector ends with _resumedeadline to match any grid ID (e.g. grid37_resumedeadline)
+            const deadlineElements = targetFrame.document.querySelectorAll('td[aria-describedby$="_resumedeadline"]');
+
+            if (!deadlineElements || deadlineElements.length === 0) {
+                return;
+            }
 
             let processedCount = 0;
             let highlightedCount = 0;
 
-            for (let i = 0; i < generatedXPaths.length; i++) {
-                const xpath = generatedXPaths[i];
-
+            deadlineElements.forEach((element, index) => {
                 try {
-                    const element = targetFrame.document.evaluate(
-                        xpath,
-                        targetFrame.document,
-                        null,
-                        XPathResult.FIRST_ORDERED_NODE_TYPE,
-                        null
-                    ).singleNodeValue;
-
-                    if (!element) {
-                        continue;
-                    }
-
+                    // Try to get date from title attribute first (often contains full date), then text content
+                    const titleText = element.getAttribute('title');
                     const timeText = element.textContent?.trim();
+                    const dateText = titleText || timeText;
 
-                    if (!timeText) {
-                        continue;
+                    if (!dateText) {
+                        return;
                     }
 
                     processedCount++;
 
+                    // Unique ID for the row based on index and content
+                    const rowId = `row-${index}-${dateText}`;
+
                     // Skip if already processed (optimization)
-                    const rowId = `row-${i}-${timeText}`;
                     if (processedRows.has(rowId)) {
-                        continue;
+                        return;
                     }
 
                     // Get deadline date and time
-                    const elementDateTime = getElementDateTimeFromText(timeText);
+                    const elementDateTime = getElementDateTimeFromText(dateText);
 
                     if (!elementDateTime) {
-                        console.debug(`Could not parse date from: "${timeText}"`);
-                        continue;
+                        return;
                     }
 
                     // Get the current date and time
                     const currentDate = new Date();
-
-                    console.debug(`Processing deadline: ${timeText} -> ${elementDateTime.toLocaleString()}, Current: ${currentDate.toLocaleString()}`);
 
                     // Apply highlighting
                     applyDeadlineHighlight(element, elementDateTime, currentDate);
@@ -816,11 +783,13 @@ if (window.erpDeadlineHighlighterLoaded) {
                     // Silently continue for individual element errors
                     console.debug('Element processing error:', elementError);
                 }
-            }
+            });
 
             // Log statistics periodically and update legend
             if (processedCount > 0) {
-                console.log(`📊 Processed: ${processedCount} rows, Highlighted: ${highlightedCount} deadlines`);
+                if (Math.random() < 0.05) { // Log occasionally
+                    console.log(`📊 Processed: ${processedCount} rows, Highlighted: ${highlightedCount} deadlines`);
+                }
                 updateLegendStatus();
             }
 
