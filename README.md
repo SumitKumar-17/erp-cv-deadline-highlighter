@@ -1,3 +1,14 @@
+> [!WARNING]
+> ## Repository Archived
+>
+> This repository is no longer maintained and has been archived. It will not receive updates, bug fixes, or new features.
+>
+> Please use the actively maintained repository instead:
+>
+> **https://github.com/SumitKumar-17/erp-toolkit**
+>
+> Thank you for your support and understanding.
+
 # ERP CV Deadline Highlighter
 
 A Chrome extension that highlights CV deadlines in ERP systems with color-coded visual indicators for better deadline management.
